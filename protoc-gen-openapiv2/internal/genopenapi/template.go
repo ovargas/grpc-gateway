@@ -1686,6 +1686,15 @@ func renderServices(services []*descriptor.Service, paths *openapiPathsObject, r
 					// TODO(ivucica): add remaining fields of operation object
 				}
 
+				// Updates the summary to include the body name when the body is oneof, so that the operation
+				// can be distinguished from other operations with the same method.
+				if b.Body != nil && len(b.Body.FieldPath) != 0 && b.Body.FieldPath[0].Target.OneofIndex != nil {
+					if operationObject.Summary == "" {
+						operationObject.Summary = meth.GetName()
+					}
+
+					operationObject.Summary += "(" + b.Body.FieldPath[0].Target.GetJsonName() + ")"
+				}
 				switch b.HTTPMethod {
 				case "DELETE":
 					pathItemObject.Delete = operationObject
